@@ -1,0 +1,11 @@
+{
+  "name": "calendar",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "date-fns": "^2.15.0",
+    "frow": "^3.3.2",
+    "mithril": "^2.0.4"
+  }
+}
