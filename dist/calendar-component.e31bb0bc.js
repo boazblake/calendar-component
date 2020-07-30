@@ -6159,22 +6159,25 @@ var updateMonth = function updateMonth(month, dir) {
   return (parseInt(month) + dir).toString().length == 1 ? pad0Left((parseInt(month) + dir).toString()) : (parseInt(month) + dir).toString();
 };
 
-var updateModelDto = function updateModelDto(mdl, dir) {
-  var year = mdl.data.year;
-  var month = updateMonth(mdl.data.month, dir);
-  var day = "01";
+var updateModelDto = function updateModelDto(year, month, day, dir) {
+  var _year = year;
 
-  if (month >= 13) {
-    year = updateYear(year, dir);
-    month = "01";
+  var _month = updateMonth(month, dir); // console.log(month, _month)
+
+
+  var _day = day || "01";
+
+  if (_month >= 13) {
+    _year = updateYear(_year, dir);
+    _month = "01";
   }
 
-  if (month <= 0) {
-    year = updateYear(year, dir);
-    month = "12";
+  if (_month <= 0) {
+    _year = updateYear(_year, dir);
+    _month = "12";
   }
 
-  return getModelDto(formatDateString(year, month, day));
+  return getModelDto(formatDateString(_year, _month, _day));
 };
 
 exports.updateModelDto = updateModelDto;
@@ -6200,18 +6203,18 @@ var isCalenderDay = function isCalenderDay(date) {
 
 exports.isCalenderDay = isCalenderDay;
 
-var isNotCalenderDay = function isNotCalenderDay(date) {
+var isNotCalenderDay = function isNotCalenderDay(day, date) {
   return {
-    day: (0, _format.default)(date, "dd"),
-    dir: (0, _differenceInMonths.default)(date, (0, _parseISO.default)(shortDate())) == 0 ? -1 : +1
+    day: (0, _format.default)(day, "dd"),
+    dir: (0, _differenceInMonths.default)((0, _parseISO.default)(shortDate(date)), day) == 0 ? -1 : +1
   };
 };
 
 exports.isNotCalenderDay = isNotCalenderDay;
 
-var createCalendarDayViewModel = function createCalendarDayViewModel(day, _ref) {
+var createCalendarDayViewModel = function createCalendarDayViewModel(day, date, _ref) {
   var isSameMonth = _ref.isSameMonth;
-  return isSameMonth ? isCalenderDay(day) : isNotCalenderDay(day);
+  return isSameMonth ? isCalenderDay(day) : isNotCalenderDay(day, date);
 };
 
 exports.createCalendarDayViewModel = createCalendarDayViewModel;
@@ -6231,7 +6234,7 @@ var getMountMatrix = function getMountMatrix(_ref2) {
       start: (0, _startOfISOWeek.default)(weekDay),
       end: (0, _endOfISOWeek.default)(weekDay)
     }).map(function (day) {
-      return createCalendarDayViewModel(day, {
+      return createCalendarDayViewModel(day, date, {
         isSameMonth: (0, _isSameMonth.default)(date, day)
       });
     });
@@ -6250,7 +6253,7 @@ var getModelDto = function getModelDto() {
   var day = _date[2];
   var dto = {
     isLeapYear: isLeapYear(year),
-    selectedDate: date,
+    startDate: date,
     today: shortDate(),
     year: year,
     month: month,
@@ -6312,7 +6315,7 @@ var Toolbar = function Toolbar() {
           return mdl.data = (0, _model.getModelDto)(e.target.value);
         },
         type: "date",
-        value: mdl.data.selectedDate
+        value: mdl.data.startDate
       })]);
     }
   };
@@ -6325,11 +6328,11 @@ var MonthsToolbar = function MonthsToolbar() {
       // console.log(mdl)
       return (0, _mithril.default)(".frow width-100  mt-10", [(0, _mithril.default)("h1", mdl.data.year), (0, _mithril.default)(".frow width-100 row-between mt-10", [(0, _mithril.default)(".button", {
         onclick: function onclick(e) {
-          mdl.data = (0, _model.updateModelDto)(mdl, -1);
+          mdl.data = (0, _model.updateModelDto)(mdl.data.year, mdl.data.month, null, -1);
         }
       }, (0, _model.getMonthByIdx)(parseInt(mdl.data.month - 2))), (0, _mithril.default)(".text-underline", (0, _model.getMonthByIdx)(parseInt(mdl.data.month) - 1)), (0, _mithril.default)(".button", {
         onclick: function onclick(e) {
-          mdl.data = (0, _model.updateModelDto)(mdl, 1);
+          mdl.data = (0, _model.updateModelDto)(mdl.data.year, mdl.data.month, null, 1);
         }
       }, (0, _model.getMonthByIdx)(parseInt(mdl.data.month)))])]);
     }
@@ -6353,7 +6356,7 @@ var Calendar = function Calendar() {
               dir = _ref4.dir;
           return (0, _mithril.default)(".col-xs-1-7 text-center", {
             onclick: function onclick(_) {
-              return mdl.data = (0, _model.getModelDto)((0, _model.formatDateString)(mdl.data.year, mdl.data.month, day, dir));
+              return mdl.data = (0, _model.updateModelDto)(mdl.data.year, mdl.data.month, day, dir);
             },
             class: (0, _model.calendarDayClass)(mdl.data)(day, dir)
           }, (0, _mithril.default)("span.day", day));

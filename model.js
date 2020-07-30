@@ -60,22 +60,23 @@ const updateMonth = (month, dir) =>
     ? pad0Left((parseInt(month) + dir).toString())
     : (parseInt(month) + dir).toString()
 
-export const updateModelDto = (mdl, dir) => {
-  let year = mdl.data.year
-  let month = updateMonth(mdl.data.month, dir)
-  let day = "01"
+export const updateModelDto = (year, month, day, dir) => {
+  let _year = year
+  let _month = updateMonth(month, dir)
+  // console.log(month, _month)
+  let _day = day || "01"
 
-  if (month >= 13) {
-    year = updateYear(year, dir)
-    month = "01"
+  if (_month >= 13) {
+    _year = updateYear(_year, dir)
+    _month = "01"
   }
 
-  if (month <= 0) {
-    year = updateYear(year, dir)
-    month = "12"
+  if (_month <= 0) {
+    _year = updateYear(_year, dir)
+    _month = "12"
   }
 
-  return getModelDto(formatDateString(year, month, day))
+  return getModelDto(formatDateString(_year, _month, _day))
 }
 
 export const getMonthByIdx = (idx) =>
@@ -92,13 +93,13 @@ export const isCalenderDay = (date) => ({
   dir: 0,
 })
 
-export const isNotCalenderDay = (date) => ({
-  day: format(date, "dd"),
-  dir: differenceInMonths(date, parseISO(shortDate())) == 0 ? -1 : +1,
+export const isNotCalenderDay = (day, date) => ({
+  day: format(day, "dd"),
+  dir: differenceInMonths(parseISO(shortDate(date)), day) == 0 ? -1 : +1,
 })
 
-export const createCalendarDayViewModel = (day, { isSameMonth }) =>
-  isSameMonth ? isCalenderDay(day) : isNotCalenderDay(day)
+export const createCalendarDayViewModel = (day, date, { isSameMonth }) =>
+  isSameMonth ? isCalenderDay(day) : isNotCalenderDay(day, date)
 
 export const getMountMatrix = ({ year, month }) => {
   const date = new Date(parseInt(year), parseInt(month - 1))
@@ -116,7 +117,7 @@ export const getMountMatrix = ({ year, month }) => {
       start: startOfISOWeek(weekDay),
       end: endOfISOWeek(weekDay),
     }).map((day) =>
-      createCalendarDayViewModel(day, {
+      createCalendarDayViewModel(day, date, {
         isSameMonth: isSameMonth(date, day),
       })
     )
@@ -131,7 +132,7 @@ export const getModelDto = (date = shortDate()) => {
 
   let dto = {
     isLeapYear: isLeapYear(year),
-    selectedDate: date,
+    startDate: date,
     today: shortDate(),
     year,
     month,

@@ -3,7 +3,6 @@ import {
   root,
   daysOfTheWeek,
   updateModelDto,
-  formatDateString,
   getMountMatrix,
   getModelDto,
   calendarDayClass,
@@ -17,7 +16,7 @@ const Toolbar = () => {
         m("input", {
           onchange: (e) => (mdl.data = getModelDto(e.target.value)),
           type: "date",
-          value: mdl.data.selectedDate,
+          value: mdl.data.startDate,
         }),
       ]),
   }
@@ -34,7 +33,12 @@ const MonthsToolbar = () => {
             ".button",
             {
               onclick: (e) => {
-                mdl.data = updateModelDto(mdl, -1)
+                mdl.data = updateModelDto(
+                  mdl.data.year,
+                  mdl.data.month,
+                  null,
+                  -1
+                )
               },
             },
             getMonthByIdx(parseInt(mdl.data.month - 2))
@@ -44,7 +48,12 @@ const MonthsToolbar = () => {
             ".button",
             {
               onclick: (e) => {
-                mdl.data = updateModelDto(mdl, 1)
+                mdl.data = updateModelDto(
+                  mdl.data.year,
+                  mdl.data.month,
+                  null,
+                  1
+                )
               },
             },
             getMonthByIdx(parseInt(mdl.data.month))
@@ -59,7 +68,6 @@ const Calendar = () => {
   return {
     view: ({ attrs: { mdl } }) => {
       let dto = getMountMatrix(mdl.data)
-
       return m(".frow frow-container", [
         m(MonthsToolbar, { mdl }),
         m(
@@ -86,13 +94,11 @@ const Calendar = () => {
                   ".col-xs-1-7 text-center",
                   {
                     onclick: (_) =>
-                      (mdl.data = getModelDto(
-                        formatDateString(
-                          mdl.data.year,
-                          mdl.data.month,
-                          day,
-                          dir
-                        )
+                      (mdl.data = updateModelDto(
+                        mdl.data.year,
+                        mdl.data.month,
+                        day,
+                        dir
                       )),
                     class: calendarDayClass(mdl.data)(day, dir),
                   },
