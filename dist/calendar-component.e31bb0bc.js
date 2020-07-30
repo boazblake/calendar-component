@@ -6100,7 +6100,7 @@ function validateTimezone(_hours, minutes) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.calendarDayClass = exports.isThisMonthClass = exports.isTodayClass = exports.getModelDto = exports.getMountMatrix = exports.createCalendarDayViewModel = exports.isNotCalenderDay = exports.isCalenderDay = exports.formatDateString = exports.getMonthByIdx = exports.updateModelDto = exports.monthsOfTheYear = exports.daysOfTheWeek = exports.shortDate = exports.root = void 0;
+exports.calendarDayClass = exports.isThisMonthClass = exports.isTodayClass = exports.getModelDto = exports.getMountMatrix = exports.createCalendarDayViewModel = exports.isNotCalenderDay = exports.isCalenderDay = exports.formatDateString = exports.getMonthByIdx = exports.updateMonthDto = exports.monthsOfTheYear = exports.daysOfTheWeek = exports.shortDate = exports.root = void 0;
 
 var _eachDayOfInterval = _interopRequireDefault(require("date-fns/eachDayOfInterval"));
 
@@ -6159,7 +6159,7 @@ var updateMonth = function updateMonth(month, dir) {
   return (parseInt(month) + dir).toString().length == 1 ? pad0Left((parseInt(month) + dir).toString()) : (parseInt(month) + dir).toString();
 };
 
-var updateModelDto = function updateModelDto(year, month, day, dir) {
+var updateMonthDto = function updateMonthDto(year, month, day, dir) {
   var _year = year;
 
   var _month = updateMonth(month, dir); // console.log(month, _month)
@@ -6177,10 +6177,11 @@ var updateModelDto = function updateModelDto(year, month, day, dir) {
     _month = "12";
   }
 
+  console.log(formatDateString(_year, _month, _day));
   return getModelDto(formatDateString(_year, _month, _day));
 };
 
-exports.updateModelDto = updateModelDto;
+exports.updateMonthDto = updateMonthDto;
 
 var getMonthByIdx = function getMonthByIdx(idx) {
   return idx >= 12 ? monthsOfTheYear[0] : idx < 0 ? monthsOfTheYear[11] : monthsOfTheYear[idx];
@@ -6316,7 +6317,11 @@ var Toolbar = function Toolbar() {
         },
         type: "date",
         value: mdl.data.startDate
-      })]);
+      }), (0, _mithril.default)("button.width-100", {
+        onclick: function onclick(_) {
+          return mdl.data = (0, _model.getModelDto)();
+        }
+      }, "Today")]);
     }
   };
 };
@@ -6326,15 +6331,23 @@ var MonthsToolbar = function MonthsToolbar() {
     view: function view(_ref2) {
       var mdl = _ref2.attrs.mdl;
       // console.log(mdl)
-      return (0, _mithril.default)(".frow width-100  mt-10", [(0, _mithril.default)("h1", mdl.data.year), (0, _mithril.default)(".frow width-100 row-between mt-10", [(0, _mithril.default)(".button", {
-        onclick: function onclick(e) {
-          mdl.data = (0, _model.updateModelDto)(mdl.data.year, mdl.data.month, null, -1);
+      return (0, _mithril.default)(".frow width-100  mt-10", [(0, _mithril.default)(".frow width-100 row-between mt-10", [(0, _mithril.default)("button.prevMonth", (0, _mithril.default)("h3", {
+        onclick: function onclick(_) {
+          mdl.data = (0, _model.getModelDto)((0, _model.formatDateString)(parseInt(mdl.data.year) - 1, mdl.data.month, mdl.data.day));
         }
-      }, (0, _model.getMonthByIdx)(parseInt(mdl.data.month - 2))), (0, _mithril.default)(".text-underline", (0, _model.getMonthByIdx)(parseInt(mdl.data.month) - 1)), (0, _mithril.default)(".button", {
-        onclick: function onclick(e) {
-          mdl.data = (0, _model.updateModelDto)(mdl.data.year, mdl.data.month, null, 1);
+      }, parseInt(mdl.data.year) - 1)), (0, _mithril.default)(".centerMonthGroup", [(0, _mithril.default)("h2.currentMonth", (0, _model.getMonthByIdx)(parseInt(mdl.data.month) - 1)), (0, _mithril.default)("h3.text-center", parseInt(mdl.data.year))]), (0, _mithril.default)("button.nextMonth", (0, _mithril.default)("h3", {
+        onclick: function onclick(_) {
+          mdl.data = (0, _model.getModelDto)((0, _model.formatDateString)(parseInt(mdl.data.year) + 1, mdl.data.month, mdl.data.day));
         }
-      }, (0, _model.getMonthByIdx)(parseInt(mdl.data.month)))])]);
+      }, parseInt(mdl.data.year) + 1))]), (0, _mithril.default)(".frow width-100 row-between mt-10", [(0, _mithril.default)("button", {
+        onclick: function onclick(_) {
+          mdl.data = (0, _model.updateMonthDto)(mdl.data.year, mdl.data.month, null, -1);
+        }
+      }, (0, _mithril.default)("h4", (0, _model.getMonthByIdx)(parseInt(mdl.data.month - 2)))), (0, _mithril.default)("button", {
+        onclick: function onclick(_) {
+          mdl.data = (0, _model.updateMonthDto)(mdl.data.year, mdl.data.month, null, 1);
+        }
+      }, (0, _mithril.default)("h4", (0, _model.getMonthByIdx)(parseInt(mdl.data.month))))])]);
     }
   };
 };
@@ -6356,7 +6369,7 @@ var Calendar = function Calendar() {
               dir = _ref4.dir;
           return (0, _mithril.default)(".col-xs-1-7 text-center", {
             onclick: function onclick(_) {
-              return mdl.data = (0, _model.updateModelDto)(mdl.data.year, mdl.data.month, day, dir);
+              return mdl.data = (0, _model.updateMonthDto)(mdl.data.year, mdl.data.month, day, dir);
             },
             class: (0, _model.calendarDayClass)(mdl.data)(day, dir)
           }, (0, _mithril.default)("span.day", day));
@@ -6411,7 +6424,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49592" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57580" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

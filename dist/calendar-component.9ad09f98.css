@@ -3363,6 +3363,15 @@ html > * {
   font-family: 'Fredoka One', cursive;
 }
 
+.centerMonthGroup {
+  position: relative;
+  top: 20px;
+}
+
+.currentMonth {
+  color: var(--orange);
+  font-size: 2.5rem;
+}
 
 .day {
   line-height: 2rem;

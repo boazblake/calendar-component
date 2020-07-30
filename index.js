@@ -2,11 +2,12 @@ import m from "mithril"
 import {
   root,
   daysOfTheWeek,
-  updateModelDto,
+  updateMonthDto,
   getMountMatrix,
   getModelDto,
   calendarDayClass,
   getMonthByIdx,
+  formatDateString,
 } from "./model"
 
 const Toolbar = () => {
@@ -18,6 +19,11 @@ const Toolbar = () => {
           type: "date",
           value: mdl.data.startDate,
         }),
+        m(
+          "button.width-100",
+          { onclick: (_) => (mdl.data = getModelDto()) },
+          "Today"
+        ),
       ]),
   }
 }
@@ -27,13 +33,54 @@ const MonthsToolbar = () => {
     view: ({ attrs: { mdl } }) => {
       // console.log(mdl)
       return m(".frow width-100  mt-10", [
-        m("h1", mdl.data.year),
         m(".frow width-100 row-between mt-10", [
           m(
-            ".button",
+            "button.prevMonth",
+            m(
+              "h3",
+              {
+                onclick: (_) => {
+                  mdl.data = getModelDto(
+                    formatDateString(
+                      parseInt(mdl.data.year) - 1,
+                      mdl.data.month,
+                      mdl.data.day
+                    )
+                  )
+                },
+              },
+              parseInt(mdl.data.year) - 1
+            )
+          ),
+          m(".centerMonthGroup", [
+            m("h2.currentMonth", getMonthByIdx(parseInt(mdl.data.month) - 1)),
+            m("h3.text-center", parseInt(mdl.data.year)),
+          ]),
+          m(
+            "button.nextMonth",
+            m(
+              "h3",
+              {
+                onclick: (_) => {
+                  mdl.data = getModelDto(
+                    formatDateString(
+                      parseInt(mdl.data.year) + 1,
+                      mdl.data.month,
+                      mdl.data.day
+                    )
+                  )
+                },
+              },
+              parseInt(mdl.data.year) + 1
+            )
+          ),
+        ]),
+        m(".frow width-100 row-between mt-10", [
+          m(
+            "button",
             {
-              onclick: (e) => {
-                mdl.data = updateModelDto(
+              onclick: (_) => {
+                mdl.data = updateMonthDto(
                   mdl.data.year,
                   mdl.data.month,
                   null,
@@ -41,14 +88,14 @@ const MonthsToolbar = () => {
                 )
               },
             },
-            getMonthByIdx(parseInt(mdl.data.month - 2))
+            m("h4", getMonthByIdx(parseInt(mdl.data.month - 2)))
           ),
-          m(".text-underline", getMonthByIdx(parseInt(mdl.data.month) - 1)),
+
           m(
-            ".button",
+            "button",
             {
-              onclick: (e) => {
-                mdl.data = updateModelDto(
+              onclick: (_) => {
+                mdl.data = updateMonthDto(
                   mdl.data.year,
                   mdl.data.month,
                   null,
@@ -56,7 +103,7 @@ const MonthsToolbar = () => {
                 )
               },
             },
-            getMonthByIdx(parseInt(mdl.data.month))
+            m("h4", getMonthByIdx(parseInt(mdl.data.month)))
           ),
         ]),
       ])
@@ -94,7 +141,7 @@ const Calendar = () => {
                   ".col-xs-1-7 text-center",
                   {
                     onclick: (_) =>
-                      (mdl.data = updateModelDto(
+                      (mdl.data = updateMonthDto(
                         mdl.data.year,
                         mdl.data.month,
                         day,

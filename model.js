@@ -60,7 +60,7 @@ const updateMonth = (month, dir) =>
     ? pad0Left((parseInt(month) + dir).toString())
     : (parseInt(month) + dir).toString()
 
-export const updateModelDto = (year, month, day, dir) => {
+export const updateMonthDto = (year, month, day, dir) => {
   let _year = year
   let _month = updateMonth(month, dir)
   // console.log(month, _month)
@@ -76,6 +76,7 @@ export const updateModelDto = (year, month, day, dir) => {
     _month = "12"
   }
 
+  console.log(formatDateString(_year, _month, _day))
   return getModelDto(formatDateString(_year, _month, _day))
 }
 
