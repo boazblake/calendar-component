@@ -20,17 +20,27 @@
   --black : #111111;
 }
 
-* > *{
+html > * {
+  box-sizing: border-box;
   font-family: 'Fredoka One', cursive;
 }
 
 
-.isSelected {
+.day {
+  line-height: 2rem;
+}
+
+.notThisMonth {
+  background-color:var(--silver);
+}
+
+.selectedDay {
   border: 1px solid var(--red);
 }
 
 .isToday {
   background-color: var(--blue);
+  color: var(--white);
 }
 
 .selectedWeek {

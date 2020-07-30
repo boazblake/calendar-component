@@ -1,72 +1,14 @@
-import eachDayOfInterval from "date-fns/eachDayOfInterval"
-import endOfISOWeek from "date-fns/endOfISOWeek"
-import endOfMonth from "date-fns/endOfMonth"
-import isSameMonth from "date-fns/isSameMonth"
-import startOfISOWeek from "date-fns/startOfISOWeek"
-import startOfMonth from "date-fns/startOfMonth"
-import eachWeekOfInterval from "date-fns/eachWeekOfInterval"
-import format from "date-fns/format"
-import getWeekOfMonth from "date-fns/getWeekOfMonth"
-
 import m from "mithril"
-
-const root = document.getElementById("app")
-
-const daysOfTheWeek = [
-  "Sunday",
-  "Monday",
-  "Teusday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-]
-
-const convertDate = (day, { isSameMonth }) =>
-  isSameMonth ? format(day, "dd") : "--"
-
-const getMountMatrix = ({ year, month }) => {
-  const date = new Date(year, month)
-
-  const matrix = eachWeekOfInterval(
-    {
-      start: startOfMonth(date),
-      end: endOfMonth(date),
-    },
-    { weekStartsOn: 1 }
-  )
-
-  return matrix.map((weekDay) =>
-    eachDayOfInterval({
-      start: startOfISOWeek(weekDay),
-      end: endOfISOWeek(weekDay),
-    }).map((day) =>
-      convertDate(day, {
-        isSameMonth: isSameMonth(date, day),
-      })
-    )
-  )
-}
-
-const getModelDto = (date = new Date().toISOString().split("T")[0]) => {
-  console.log("DATE", date)
-  let _date = date.split("-")
-  let year = _date[0]
-  let month = _date[1]
-  let week = getWeekOfMonth(_date)
-  let day = _date[2]
-
-  let dto = {
-    selectedDate: date,
-    today: new Date().toISOString().split("T")[0],
-    year,
-    month,
-    week,
-    day,
-  }
-  console.log("dto", dto)
-  return dto
-}
+import {
+  root,
+  daysOfTheWeek,
+  updateModelDto,
+  formatDateString,
+  getMountMatrix,
+  getModelDto,
+  calendarDayClass,
+  getMonthByIdx,
+} from "./model"
 
 const Toolbar = () => {
   return {
@@ -81,23 +23,35 @@ const Toolbar = () => {
   }
 }
 
-const calendarDayClass = ({ today, day, month }) => (currentDate) => {
-  // console.log("day", day)
-  // console.log("currentDate", currentDate)
-  // console.log("today", today.split("-")[2])
-
-  // console.log("currentDate == day", currentDate == day)
-  // console.log("currentDate == day", currentDate == today.split("-")[2])
-
-  if (currentDate == today.split("-")[2] && currentDate == day) {
-    return "selectedDay isToday"
-  } else if (currentDate == day) {
-    return "isSelected"
-  } else if (
-    currentDate == today.split("-")[2] &&
-    month == today.split("-")[1]
-  ) {
-    return "isToday"
+const MonthsToolbar = () => {
+  return {
+    view: ({ attrs: { mdl } }) => {
+      // console.log(mdl)
+      return m(".frow width-100  mt-10", [
+        m("h1", mdl.data.year),
+        m(".frow width-100 row-between mt-10", [
+          m(
+            ".button",
+            {
+              onclick: (e) => {
+                mdl.data = updateModelDto(mdl, -1)
+              },
+            },
+            getMonthByIdx(parseInt(mdl.data.month - 2))
+          ),
+          m(".text-underline", getMonthByIdx(parseInt(mdl.data.month) - 1)),
+          m(
+            ".button",
+            {
+              onclick: (e) => {
+                mdl.data = updateModelDto(mdl, 1)
+              },
+            },
+            getMonthByIdx(parseInt(mdl.data.month))
+          ),
+        ]),
+      ])
+    },
   }
 }
 
@@ -105,7 +59,9 @@ const Calendar = () => {
   return {
     view: ({ attrs: { mdl } }) => {
       let dto = getMountMatrix(mdl.data)
+
       return m(".frow frow-container", [
+        m(MonthsToolbar, { mdl }),
         m(
           ".frow width-100 row-between mt-10",
           daysOfTheWeek.map((day) =>
@@ -120,25 +76,27 @@ const Calendar = () => {
           )
         ),
         m(
-          ".frow centered-column width-100 row-between mt-10",
+          ".frow centered-column width-100 row-between mt-10 ",
           dto.map((week) =>
             m(
               ".frow width-100",
               { class: "" },
-              week.map((day) =>
+              week.map(({ day, dir }) =>
                 m(
                   ".col-xs-1-7 text-center",
                   {
                     onclick: (_) =>
                       (mdl.data = getModelDto(
-                        `${mdl.data.year}-${mdl.data.month}-${day}`
+                        formatDateString(
+                          mdl.data.year,
+                          mdl.data.month,
+                          day,
+                          dir
+                        )
                       )),
-                    class:
-                      // console.log(
-                      calendarDayClass(mdl.data)(day),
-                    // ),
+                    class: calendarDayClass(mdl.data)(day, dir),
                   },
-                  day
+                  m("span.day", day)
                 )
               )
             )

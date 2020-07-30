@@ -6,6 +6,7 @@
   "dependencies": {
     "date-fns": "^2.15.0",
     "frow": "^3.3.2",
-    "mithril": "^2.0.4"
+    "mithril": "^2.0.4",
+    "mithril-stream": "^2.0.0"
   }
 }
