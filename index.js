@@ -5,7 +5,7 @@ import {
   updateMonthDto,
   getMountMatrix,
   getModelDto,
-  calendarDayClass,
+  calendarDay,
   getMonthByIdx,
   formatDateString,
 } from "./model"
@@ -42,19 +42,22 @@ const MonthsToolbar = () => {
                 onclick: (_) => {
                   mdl.data = getModelDto(
                     formatDateString(
-                      parseInt(mdl.data.year) - 1,
-                      mdl.data.month,
-                      mdl.data.day
+                      parseInt(mdl.data.selected.year) - 1,
+                      mdl.data.selected.month,
+                      mdl.data.selected.day
                     )
                   )
                 },
               },
-              parseInt(mdl.data.year) - 1
+              parseInt(mdl.data.selected.year) - 1
             )
           ),
           m(".centerMonthGroup", [
-            m("h2.currentMonth", getMonthByIdx(parseInt(mdl.data.month) - 1)),
-            m("h3.text-center", parseInt(mdl.data.year)),
+            m(
+              "h2.currentMonth",
+              getMonthByIdx(parseInt(mdl.data.selected.month) - 1)
+            ),
+            m("h3.text-center", parseInt(mdl.data.selected.year)),
           ]),
           m(
             "button.nextMonth",
@@ -64,14 +67,14 @@ const MonthsToolbar = () => {
                 onclick: (_) => {
                   mdl.data = getModelDto(
                     formatDateString(
-                      parseInt(mdl.data.year) + 1,
-                      mdl.data.month,
-                      mdl.data.day
+                      parseInt(mdl.data.selected.year) + 1,
+                      mdl.data.selected.month,
+                      mdl.data.selected.day
                     )
                   )
                 },
               },
-              parseInt(mdl.data.year) + 1
+              parseInt(mdl.data.selected.year) + 1
             )
           ),
         ]),
@@ -81,14 +84,14 @@ const MonthsToolbar = () => {
             {
               onclick: (_) => {
                 mdl.data = updateMonthDto(
-                  mdl.data.year,
-                  mdl.data.month,
+                  mdl.data.selected.year,
+                  mdl.data.selected.month,
                   null,
                   -1
                 )
               },
             },
-            m("h4", getMonthByIdx(parseInt(mdl.data.month - 2)))
+            m("h4", getMonthByIdx(parseInt(mdl.data.selected.month - 2)))
           ),
 
           m(
@@ -96,14 +99,14 @@ const MonthsToolbar = () => {
             {
               onclick: (_) => {
                 mdl.data = updateMonthDto(
-                  mdl.data.year,
-                  mdl.data.month,
+                  mdl.data.selected.year,
+                  mdl.data.selected.month,
                   null,
                   1
                 )
               },
             },
-            m("h4", getMonthByIdx(parseInt(mdl.data.month)))
+            m("h4", getMonthByIdx(parseInt(mdl.data.selected.month)))
           ),
         ]),
       ])
@@ -142,12 +145,12 @@ const Calendar = () => {
                   {
                     onclick: (_) =>
                       (mdl.data = updateMonthDto(
-                        mdl.data.year,
-                        mdl.data.month,
+                        mdl.data.selected.year,
+                        mdl.data.selected.month,
                         day,
                         dir
                       )),
-                    class: calendarDayClass(mdl.data)(day, dir),
+                    class: calendarDay(mdl.data)(day, dir),
                   },
                   m("span.day", day)
                 )

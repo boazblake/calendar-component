@@ -8,6 +8,7 @@ import eachWeekOfInterval from "date-fns/eachWeekOfInterval"
 import format from "date-fns/format"
 import differenceInMonths from "date-fns/differenceInMonths"
 import parseISO from "date-fns/parseISO"
+import { jsonp } from "mithril"
 
 export const root = document.getElementById("app")
 
@@ -63,7 +64,6 @@ const updateMonth = (month, dir) =>
 export const updateMonthDto = (year, month, day, dir) => {
   let _year = year
   let _month = updateMonth(month, dir)
-  // console.log(month, _month)
   let _day = day || "01"
 
   if (_month >= 13) {
@@ -76,7 +76,6 @@ export const updateMonthDto = (year, month, day, dir) => {
     _month = "12"
   }
 
-  console.log(formatDateString(_year, _month, _day))
   return getModelDto(formatDateString(_year, _month, _day))
 }
 
@@ -127,6 +126,7 @@ export const getMountMatrix = ({ year, month }) => {
 
 export const getModelDto = (date = shortDate()) => {
   let _date = shortDate(date).split("-")
+  let today = shortDate().split("-")
   let year = _date[0]
   let month = _date[1]
   let day = _date[2]
@@ -134,7 +134,12 @@ export const getModelDto = (date = shortDate()) => {
   let dto = {
     isLeapYear: isLeapYear(year),
     startDate: date,
-    today: shortDate(),
+    selected: { year, month, day },
+    today: {
+      year: today[0],
+      month: today[1],
+      day: today[2],
+    },
     year,
     month,
     day,
@@ -143,23 +148,26 @@ export const getModelDto = (date = shortDate()) => {
   return dto
 }
 
-export const isTodayClass = (currentDate, today) =>
-  currentDate == today.split("-")[2]
+const isEqual = (a, b) => JSON.stringify(a) == JSON.stringify(b)
 
-export const isThisMonthClass = (currentDate, today) => currentDate == today
-
-export const calendarDayClass = ({ today, day, month }) => (
-  currentDate,
-  dir
-) => {
+export const calendarDay = ({ today, selected }) => (currentDate, dir) => {
   if (dir !== 0) {
     return "notThisMonth"
   }
-  if (isTodayClass(currentDate, today) && isThisMonthClass(currentDate, day)) {
+
+  if (
+    isEqual(currentDate, today.day) &&
+    isEqual(currentDate, selected.day) &&
+    isEqual(selected.year, today.year)
+  ) {
     return "selectedDay isToday"
-  } else if (isThisMonthClass(currentDate, day)) {
+  } else if (isEqual(currentDate, selected.day)) {
     return "selectedDay"
-  } else if (isTodayClass(currentDate, today) && month == today.split("-")[1]) {
+  } else if (
+    isEqual(currentDate, today) &&
+    isEqual(today.month, selected.month) &&
+    isEqual(today.year, selected.year)
+  ) {
     return "isToday"
   }
 }
